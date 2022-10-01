@@ -63,4 +63,18 @@ mod test {
       &expected_title
     )
   }
+
+  #[test]
+  fn figure_show_all_item_without_title() -> Result<(), String> {
+    let command_without_any_title = vec![SHOW_COMMAND.to_string()];
+
+    if let Ok(Command::ShowAll) = figure_command_from_args(command_without_any_title) {
+      return Ok(());
+    }
+
+    return Err(format!(
+      "Should all show all items without any title for command {}",
+      SHOW_COMMAND
+    ));
+  }
 }
