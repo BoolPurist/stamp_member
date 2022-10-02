@@ -1,3 +1,4 @@
+#[cfg(test)]
 pub mod args_parser_tests;
 pub enum Command {
   CreateTimeStamp(String),
@@ -8,7 +9,7 @@ pub enum Command {
   ResumeItem(String),
   ShowAll,
 }
-
+#[derive(Debug)]
 pub enum ErrorCommand {
   TooManyArgs(u32),
   UnknownCommand(String),
@@ -29,8 +30,8 @@ pub fn figure_command_from_args(args: Vec<String>) -> Result<Command, ErrorComma
   match command_as_text {
     SHOW_COMMAND => {
       if args_len > 1 {
-        let title = args[1].clone();
-        return Ok(Command::ShowItem(title));
+        let title = args[1].trim();
+        return Ok(Command::ShowItem(title.to_string()));
       } else {
         return Ok(Command::ShowAll);
       }
