@@ -1,5 +1,7 @@
 use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TimeStamp {
   title: String,
   started: DateTime<Utc>,
@@ -23,14 +25,14 @@ impl TimeStamp {
   pub fn new_with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
     TimeStamp {
       title: title.to_string(),
-      started: started,
+      started,
       ended: None,
       is_paused: false,
       time_left: None,
     }
   }
 
-  /// Outputs a vector with string rows for:
+  /// Outputs a vector with text row with columns for:
   /// - Title: Label of timestamp/stopwatch.
   /// - Started: Time at which it was started.
   /// - Ended: Time at wich the stopwatch has ended or the timestamp was finished.

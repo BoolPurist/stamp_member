@@ -1,14 +1,18 @@
 #[allow(dead_code)]
-use stamp_member::format_utils::format_to_text_table;
+use stamp_member::time_stamp::TimeStamp;
+use stamp_member::{DataSourceJsonError, TimeStampSource};
 fn main() {
-  let test_data = [
-    vec!["X".repeat(10), "Y".repeat(20)],
-    vec!["X".repeat(2), "t".repeat(5)],
+  let provider = TimeStampSource::new("/home/nice_graphic");
+}
+
+fn serde_with_vec() {
+  let data = vec![
+    TimeStamp::new("Hello"),
+    TimeStamp::new("Bye"),
+    TimeStamp::new("World"),
   ];
-  let table = format_to_text_table(&test_data, 2);
-  let expected = "XXXXXXXXXX  YYYYYYYYYYYYYYYYYYYY  
-XX          ttttt                 \n";
-  assert_eq!(table, expected);
-  println!("{}", expected);
-  // let provided_args: Vec<String> = std::env::args().skip(1).collect();
+  let text = serde_json::to_string(&data).unwrap();
+  println!("Json: {text}\n");
+  let data_back: Vec<TimeStamp> = serde_json::from_str(&text).unwrap();
+  println!("Data: {:?}", &data_back);
 }
