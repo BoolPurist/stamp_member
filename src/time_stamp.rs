@@ -22,7 +22,7 @@ impl TimeStamp {
     }
   }
 
-  pub fn new_with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
+  pub fn with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
     TimeStamp {
       title: title.to_string(),
       started,
@@ -139,7 +139,7 @@ mod test {
   fn should_convert_to_str_vec() {
     let title = "To vec";
     let started = Utc.ymd(2014, 8, 24).and_hms(18, 8, 24);
-    let actual_data = TimeStamp::new_with_started(title, started);
+    let actual_data = TimeStamp::with_started(title, started);
 
     let actual_vec = actual_data.to_str_vec();
 
