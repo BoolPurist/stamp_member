@@ -1,41 +1,32 @@
-#[cfg(test)]
-pub mod args_parser_tests;
-pub enum Command {
-  CreateTimeStamp(String),
-  CreateStopWatch(String, String),
-  ShowItem(String),
-  DeleteItem(String),
-  StopItem(String),
-  ResumeItem(String),
-  ShowAll,
+use clap::{Args, Parser};
+#[derive(Args, Debug)]
+pub struct Title {
+  /// Name of time stamp or stop watch
+  name: String,
 }
-#[derive(Debug)]
-pub enum ErrorCommand {
-  TooManyArgs(u32),
-  UnknownCommand(String),
-  MissingArg(String, u32),
+#[derive(Args, Debug)]
+pub struct StopWatch {
+  /// Name of stop watch
+  name: String,
+  /// Count down until watch is done.
+  left_time: String,
 }
-
-const SHOW_COMMAND: &str = "show";
-
-pub fn figure_command_from_args(args: Vec<String>) -> Result<Command, ErrorCommand> {
-  let args_len = args.len();
-  if args_len == 0 {
-    return Ok(Command::ShowAll);
-  } else if args_len > 3 {
-    return Err(ErrorCommand::TooManyArgs(args_len as u32));
-  }
-
-  let command_as_text: &str = args.first().unwrap();
-  match command_as_text {
-    SHOW_COMMAND => {
-      if args_len > 1 {
-        let title = args[1].trim();
-        return Ok(Command::ShowItem(title.to_string()));
-      } else {
-        return Ok(Command::ShowAll);
-      }
-    }
-    _ => Err(ErrorCommand::UnknownCommand(String::from(command_as_text))),
-  }
+#[derive(Parser, Debug)]
+#[command(author = "NiceGraphic", version = "1.0.0", about="Tool to manage timestamps", long_about = None)]
+pub enum AppCommand {
+  /// Creates a time stamp which starts from current time.
+  Time(Title),
+  /// Creates a stop watch which starts from current time and given count down.
+  Watch(StopWatch),
+  /// Show time stamp or stop watch of a given title.
+  Show(Title),
+  /// Deletes time stamp or stop watch with the given title
+  Delete(Title),
+  /// Stops time stamp and stop watch. Stops counting time.
+  Stop(Title),
+  /// Continues times stamp or stop watch if stopped before. Continues counting
+  /// again.
+  Resume(Title),
+  /// Lists all created time stamps and stop watches.
+  All,
 }

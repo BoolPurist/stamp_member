@@ -1,10 +1,11 @@
+use clap::Parser;
+use stamp_member::args_parser::AppCommand;
 #[allow(dead_code)]
 use stamp_member::time_stamp::TimeStamp;
-use stamp_member::{DataSourceJsonError, TimeStampSource};
 fn main() {
-  let provider = TimeStampSource::new("/home/nice_graphic");
+  let _args = AppCommand::parse();
 }
-
+#[allow(dead_code)]
 fn serde_with_vec() {
   let data = vec![
     TimeStamp::new("Hello"),
