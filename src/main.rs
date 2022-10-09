@@ -1,11 +1,22 @@
 use std::fmt::Display;
 
-use stamp_member::{data_access::AppDataJsonResult, format_utils, time_stamp::TimeStamp};
+use clap::Parser;
+use stamp_member::{
+  args_parser::AppCommand, data_access::AppDataJsonResult, time_stamp::TimeStamp,
+};
 #[allow(dead_code)]
 pub mod app_data_access;
 
 fn main() {
-  show_all_items().expect("Failed to show ");
+  let cli_args = AppCommand::parse();
+  match cli_args {
+    AppCommand::All => {
+      if let Err(error) = show_all_items() {
+        exit_with_err_message(&error)
+      }
+    }
+    _ => exit_with_err_message(&"Not implemented yet"),
+  }
 }
 #[allow(dead_code)]
 /// Shows given messages as error to user and exits the program as failed via
