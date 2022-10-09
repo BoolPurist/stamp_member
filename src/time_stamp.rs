@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::format_utils;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct TimeStamp {
   title: String,
   started: DateTime<Utc>,
@@ -16,6 +16,7 @@ pub struct TimeStamp {
   time_left: Option<usize>,
 }
 
+#[derive(Debug)]
 pub struct DuplicateTimeStamp(usize);
 impl TimeStamp {
   const NOT_AVAILABLE: &'static str = "N/A";
@@ -203,6 +204,39 @@ mod test {
 ".to_string();
     for (expected_side, actual_side) in expected.lines().zip(actual_table.lines()) {
       assert_eq!(expected_side, actual_side);
+    }
+  }
+
+  #[test]
+  fn should_add_time_stamp() {
+    let first_item = TimeStamp::with_started("1. Line", Utc.ymd(2012, 6, 23).and_hms(12, 8, 23));
+    let mut previous_stamps = vec![first_item.clone()];
+    let to_add = TimeStamp::with_started("2. Line", Utc.ymd(1980, 2, 7).and_hms(4, 1, 2));
+    let to_add_cloned = to_add.clone();
+
+    match TimeStamp::add_new_to_collection(&mut previous_stamps, to_add) {
+      Ok(_) => {
+        assert_eq!(2, previous_stamps.len());
+        let mut actual = previous_stamps.iter();
+        assert_eq!(actual.next().unwrap(), &first_item);
+        assert_eq!(actual.next().unwrap(), &to_add_cloned);
+      }
+      Err(error) => panic!("{:?}", error),
+    }
+  }
+  #[test]
+  fn should_deny_add_duplicate_time_stamp() {
+    let mut previous_stamps = vec![TimeStamp::with_started(
+      "1. Line",
+      Utc.ymd(2012, 6, 23).and_hms(12, 8, 23),
+    )];
+    let to_add = TimeStamp::with_started("1. Line", Utc.ymd(1980, 2, 7).and_hms(4, 1, 2));
+
+    match TimeStamp::add_new_to_collection(&mut previous_stamps, to_add) {
+      Ok(_) => {
+        panic!("Should deny the duplicate title.")
+      }
+      Err(error) => assert_eq!(error.0, 0, "Duplicate key is not correct"),
     }
   }
 }
