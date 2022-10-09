@@ -7,10 +7,11 @@ You can track time with this tool in the terminal
 
 ## Features
 
+- List all created time stamps and stop watches
+
 ## Roadmap
 - Create time stamps.
 - Create stop watch.
-- List all created time stamps and stop watches
 - Delete time stamp or stop watch by title
 - Show one time stamp or stop watch by title.
 - Stop time stamp and stop watch by title.
