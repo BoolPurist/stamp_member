@@ -23,15 +23,16 @@ use std::cmp::max;
 pub fn format_to_text_table(to_format: &[Vec<String>], rim_spaces: usize) -> String {
   let mut column_width_vec = calc_max_column_with_for(to_format);
 
+  let mut size_of_all_rows: usize = 0;
   for column_width in column_width_vec.iter_mut() {
     *column_width += rim_spaces;
+    size_of_all_rows += *column_width;
   }
 
-  let size_of_all_rows: usize = column_width_vec.iter().sum();
   let size_with_newlines = size_of_all_rows + column_width_vec.len();
   let mut table = String::with_capacity(size_with_newlines);
 
-  create_table_with_padding(&mut table, &to_format, &column_width_vec);
+  create_table_with_padding(&mut table, to_format, &column_width_vec);
 
   table
 }
