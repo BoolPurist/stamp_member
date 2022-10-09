@@ -16,23 +16,16 @@ pub struct TimeStamp {
   time_left: Option<usize>,
 }
 
+pub struct DuplicateTimeStamp(usize);
 impl TimeStamp {
   const NOT_AVAILABLE: &'static str = "N/A";
   pub fn new(title: &str) -> TimeStamp {
-    TimeStamp {
-      title: title.to_string(),
-      started: Utc::now(),
-      ended: None,
-      finished: None,
-      is_paused: false,
-      last_paused: None,
-      time_left: None,
-    }
+    TimeStamp::with_started(title, Utc::now())
   }
 
   pub fn with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
     TimeStamp {
-      title: title.to_string(),
+      title: title.trim().to_string(),
       started,
       ended: None,
       finished: None,
@@ -63,6 +56,22 @@ impl TimeStamp {
 
     text_data.insert(0, headers);
     format_utils::format_to_text_table(&text_data, 2)
+  }
+  pub fn add_new_to_collection(
+    to_add_to: &mut Vec<TimeStamp>,
+    new_to_add: TimeStamp,
+  ) -> Result<(), DuplicateTimeStamp> {
+    let found_in_collection = to_add_to
+      .iter()
+      .position(|stamp| stamp.title == new_to_add.title);
+
+    if let Some(found_index) = found_in_collection {
+      return Err(DuplicateTimeStamp(found_index));
+    }
+
+    to_add_to.push(new_to_add);
+
+    Ok(())
   }
 
   /// Creates a list of text columns from time stamps. Useful for preparing time stamps for
