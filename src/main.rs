@@ -1,9 +1,10 @@
 use clap::Parser;
-use stamp_member::args_parser::AppCommand;
 #[allow(dead_code)]
 use stamp_member::time_stamp::TimeStamp;
+use stamp_member::{args_parser::AppCommand, data_access::get_data_path};
 fn main() {
   let _args = AppCommand::parse();
+  let path = get_data_path();
 }
 #[allow(dead_code)]
 fn serde_with_vec() {
