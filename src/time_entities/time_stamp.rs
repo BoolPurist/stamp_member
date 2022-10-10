@@ -12,7 +12,6 @@ pub struct TimeStamp {
   ended: Option<DateTime<Utc>>,
   is_paused: bool,
   last_paused: Option<DateTime<Utc>>,
-  time_left: Option<usize>,
 }
 
 #[derive(Debug)]
@@ -30,7 +29,6 @@ impl TimeStamp {
       ended: None,
       is_paused: false,
       last_paused: None,
-      time_left: None,
     }
   }
 
@@ -41,7 +39,6 @@ impl TimeStamp {
       "Ended at",
       "Is paused",
       "Last time paused",
-      "Time left",
     ]
     .iter()
     .map(|to_str| to_str.to_string())
@@ -103,7 +100,6 @@ impl TimeStamp {
       "no".to_string()
     });
 
-    TimeStamp::push_text_date_time(&mut output, self.time_left);
     TimeStamp::push_text_date_time(&mut output, self.last_paused);
 
     output
@@ -166,7 +162,6 @@ mod test {
         TimeStamp::NOT_AVAILABLE.to_string(),
         "no".to_string(),
         TimeStamp::NOT_AVAILABLE.to_string(),
-        TimeStamp::NOT_AVAILABLE.to_string(),
       ]
     );
   }
@@ -193,9 +188,9 @@ mod test {
     ];
 
     let actual_table = TimeStamp::create_text_table_from_time_stamps(&input);
-    let expected = "Title                      Started at                 Ended at  Is paused  Last time paused  Time left  
-1. Line with more content  On 02.01.2018 at 14:12:24  N/A       no         N/A               N/A        
-2. Line with more content  On 02.01.2022 at 12:32:34  N/A       no         N/A               N/A        
+    let expected = "Title                      Started at                 Ended at  Is paused  Last time paused  
+1. Line with more content  On 02.01.2018 at 14:12:24  N/A       no         N/A               
+2. Line with more content  On 02.01.2022 at 12:32:34  N/A       no         N/A               
 ".to_string();
     for (expected_side, actual_side) in expected.lines().zip(actual_table.lines()) {
       assert_eq!(expected_side, actual_side);
