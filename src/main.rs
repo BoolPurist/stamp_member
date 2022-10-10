@@ -1,17 +1,14 @@
 use std::fmt::Display;
 
 use clap::Parser;
-use stamp_member::{
-  args_parser::AppCommand, data_access::AppDataJsonResult, time_stamp::TimeStamp,
-};
-#[allow(dead_code)]
-pub mod app_data_access;
+use stamp_member::app_command_impl;
+use stamp_member::args_parser::AppCommand;
 
 fn main() {
   let cli_args = AppCommand::parse();
   match cli_args {
     AppCommand::All => {
-      if let Err(error) = show_all_items() {
+      if let Err(error) = app_command_impl::show_all_items() {
         exit_with_err_message(&error)
       }
     }
@@ -25,11 +22,4 @@ fn main() {
 fn exit_with_err_message<T: Display>(message: &T) {
   eprintln!("Error: {}", message);
   std::process::exit(1);
-}
-
-fn show_all_items() -> AppDataJsonResult<()> {
-  let data = app_data_access::read_app_data()?;
-  let table = TimeStamp::create_text_table_from_time_stamps(&data);
-  println!("{table}");
-  Ok(())
 }
