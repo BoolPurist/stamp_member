@@ -29,4 +29,7 @@ pub enum AppCommand {
   Resume(Title),
   /// Lists all created time stamps and stop watches.
   All,
+  #[cfg(debug_assertions)]
+  /// Clears and saves initial dev dummy date into data.json under dev_resources
+  DevInit,
 }

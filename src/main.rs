@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use clap::Parser;
 use stamp_member::args_parser::AppCommand;
-use stamp_member::{app_command_impl, app_data_access};
+use stamp_member::{app_command_impl, app_data_access, data_access};
 
 fn main() {
   normal_app_run();
@@ -13,6 +13,11 @@ fn initial_with_fake_dev_data() {
   let fake_data = app_data_access::fake_dev_app_data();
   let json = fake_data.to_json().unwrap();
   app_data_access::save_app_data(&json).expect("Saving failed");
+
+  println!(
+    "Initial dev data written  to {:?}",
+    data_access::paths::get_data_path()
+  )
 }
 
 #[allow(dead_code)]
@@ -25,6 +30,8 @@ fn normal_app_run() {
         exit_with_err_message(&error)
       }
     }
+    #[cfg(debug_assertions)]
+    AppCommand::DevInit => initial_with_fake_dev_data(),
     _ => exit_with_err_message(&"Not implemented yet"),
   }
 }
