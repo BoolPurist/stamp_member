@@ -7,11 +7,10 @@ pub enum AppDataOperationError {
   JsonError(serde_json::Error),
   DuplicateTitle(&'static str),
 }
-pub fn show_all_items() -> Result<(), AppDataOperationError> {
+pub fn show_all_items() -> Result<String, AppDataOperationError> {
   let data = app_data_access::read_app_data()?;
   let entities = TimeEntitiesController::from_json(&data)?;
-  println!("{entities}");
-  Ok(())
+  Ok(format!("{entities}"))
 }
 
 pub fn add_time_stamp_by_title(new_title: &str) -> Result<(), AppDataOperationError> {
@@ -23,7 +22,6 @@ pub fn add_time_stamp_by_title(new_title: &str) -> Result<(), AppDataOperationEr
     Ok(_) => {
       let json = entities.to_json()?;
       app_data_access::save_app_data(&json)?;
-      println!("Time stamp created and created");
       Ok(())
     }
     Err(ref message) => Err(AppDataOperationError::DuplicateTitle(message)),

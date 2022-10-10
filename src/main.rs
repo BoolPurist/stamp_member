@@ -23,16 +23,14 @@ fn normal_app_run() {
   let cli_args = AppCommand::parse();
 
   match cli_args {
-    AppCommand::All => {
-      if let Err(error) = app_command_impl::show_all_items() {
-        exit_with_err_message(&error)
-      }
-    }
-    AppCommand::Time(args) => {
-      if let Err(error) = app_command_impl::add_time_stamp_by_title(&args.name) {
-        exit_with_err_message(&error)
-      }
-    }
+    AppCommand::All => match app_command_impl::show_all_items() {
+      Ok(table) => println!("{table}"),
+      Err(error) => exit_with_err_message(&error),
+    },
+    AppCommand::Time(args) => match app_command_impl::add_time_stamp_by_title(&args.name) {
+      Ok(_) => println!("Time stamp created and created"),
+      Err(error) => exit_with_err_message(&error),
+    },
     #[cfg(debug_assertions)]
     AppCommand::DevInit => initial_with_fake_dev_data(),
     _ => exit_with_err_message(&"Not implemented yet"),
