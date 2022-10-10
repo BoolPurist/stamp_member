@@ -2,7 +2,7 @@ use clap::{Args, Parser};
 #[derive(Args, Debug)]
 pub struct Title {
   /// Name of time stamp or stop watch
-  name: String,
+  pub name: String,
 }
 #[derive(Args, Debug)]
 pub struct StopWatchCliArgs {

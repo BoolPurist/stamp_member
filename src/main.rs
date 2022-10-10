@@ -28,6 +28,11 @@ fn normal_app_run() {
         exit_with_err_message(&error)
       }
     }
+    AppCommand::Time(args) => {
+      if let Err(error) = app_command_impl::add_time_stamp_by_title(&args.name) {
+        exit_with_err_message(&error)
+      }
+    }
     #[cfg(debug_assertions)]
     AppCommand::DevInit => initial_with_fake_dev_data(),
     _ => exit_with_err_message(&"Not implemented yet"),

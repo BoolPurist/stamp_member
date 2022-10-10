@@ -1,19 +1,21 @@
 //! Loads and saves data specific for the this app.
 //! It uses the corresponding data folders of the user or the resource folder
 //! under dev_resources if in dev build
+use std::io;
+
 use crate::{
-  data_access::{self, AppDataJsonResult},
+  data_access::{self},
   time_entities::{time_entities_controller::TimeEntitiesController, time_stamp::TimeStamp},
 };
 use chrono::prelude::*;
 
-pub fn read_app_data() -> AppDataJsonResult<String> {
+pub fn read_app_data() -> io::Result<String> {
   let path = data_access::paths::get_data_path()?;
   let data = data_access::get_all_data(&path)?;
   Ok(data)
 }
 
-pub fn save_app_data(data: &str) -> AppDataJsonResult<()> {
+pub fn save_app_data(data: &str) -> io::Result<()> {
   let path = data_access::paths::get_data_path()?;
   data_access::save_data(&path, &data)?;
   Ok(())

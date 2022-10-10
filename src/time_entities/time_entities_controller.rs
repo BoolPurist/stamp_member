@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use super::{stop_watch::StopWatch, time_stamp::TimeStamp};
+use super::{stop_watch::StopWatch, time_stamp::TimeStamp, TimeEntity};
 
 #[derive(Serialize, Deserialize)]
 pub struct TimeEntitiesController {
@@ -25,7 +25,7 @@ impl TimeEntitiesController {
     }
   }
 
-  pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
+  pub fn from_json(json: &str) -> Result<TimeEntitiesController, serde_json::Error> {
     let new = serde_json::from_str(json)?;
     Ok(new)
   }
@@ -38,6 +38,21 @@ impl TimeEntitiesController {
       let to_return = serde_json::to_string(self)?;
       Ok(to_return)
     }
+  }
+
+  pub fn add_new_time_stamp(&mut self, new_title: &str) -> Result<(), &'static str> {
+    let duplicate_title_on_stamps = Self::has_duplicate_on(&self.time_stamps, new_title);
+    if duplicate_title_on_stamps {
+      return Err("Title already exists on another time stamp");
+    }
+    let new_time_stamp = TimeStamp::new(new_title);
+
+    self.time_stamps.push(new_time_stamp);
+    Ok(())
+  }
+
+  fn has_duplicate_on<T: TimeEntity>(entities: &[T], title: &str) -> bool {
+    entities.iter().any(|entity| entity.get_title() == title)
   }
 }
 
