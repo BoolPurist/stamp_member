@@ -6,15 +6,40 @@ use super::*;
 
 #[test]
 fn should_finish_on_2_hours_later() {
-  let started = Utc.ymd(2012, 8, 8).and_hms(2, 2, 2);
-  let mut actual_data = TimeStamp::with_started("2 Hours later ...", started.clone());
-  let expected_ended = started.add(Duration::hours(2));
-  actual_data.set_new(&expected_ended);
+  let (mut actual_data, expected_ended) = setup_finish();
 
   match actual_data.finish() {
     Ok(ended_time) => assert_eq!(&expected_ended, ended_time),
     Err(_) => panic!("Failure on finished time stamp"),
   };
+}
+
+#[test]
+fn should_return_error_on_already_finished() {
+  // Set up
+  let (mut actual_data, expected_ended) = setup_finish();
+  actual_data.finish().unwrap();
+  // Change current time and see if ended time remains the same
+  actual_data.set_new(&expected_ended.add(Duration::hours(2)));
+
+  // Act
+  match actual_data.finish() {
+    // Assert
+    Ok(_) => panic!("Should return error on already ended time stamp"),
+    Err(actual_time) => assert_eq!(
+      &expected_ended, actual_time,
+      "Should still have the same ended time"
+    ),
+  }
+}
+
+fn setup_finish() -> (TimeStamp, DateTime<Utc>) {
+  let started = Utc.ymd(2012, 8, 8).and_hms(2, 2, 2);
+  let mut actual_data = TimeStamp::with_started("2 Hours later ...", started.clone());
+  let expected_ended = started.add(Duration::hours(2));
+  actual_data.set_new(&expected_ended);
+
+  (actual_data, expected_ended)
 }
 
 #[test]
