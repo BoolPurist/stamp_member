@@ -31,8 +31,13 @@ impl TimeEntitiesController {
   }
 
   pub fn to_json(&self) -> Result<String, serde_json::Error> {
-    let to_return = serde_json::to_string(self)?;
-    Ok(to_return)
+    if cfg!(debug_assertions) {
+      let to_return = serde_json::to_string_pretty(self)?;
+      Ok(to_return)
+    } else {
+      let to_return = serde_json::to_string(self)?;
+      Ok(to_return)
+    }
   }
 }
 
