@@ -1,7 +1,5 @@
 use std::{fmt::Display, fs, io, path::PathBuf};
 
-use crate::time_entities::time_stamp::TimeStamp;
-
 pub mod paths;
 #[derive(Debug)]
 pub enum DataSourceJsonError {
@@ -19,15 +17,13 @@ impl Display for DataSourceJsonError {
   }
 }
 pub type AppDataJsonResult<T> = Result<T, DataSourceJsonError>;
-pub fn get_all_data(path: &PathBuf) -> AppDataJsonResult<Vec<TimeStamp>> {
+pub fn get_all_data(path: &PathBuf) -> io::Result<String> {
   let content = fs::read_to_string(path)?;
-  let data: Vec<TimeStamp> = serde_json::from_str(&content)?;
-  Ok(data)
+  Ok(content)
 }
 
-pub fn save_data(path: &PathBuf, data: &[TimeStamp]) -> AppDataJsonResult<()> {
-  let data_as_json = serde_json::to_string(data)?;
-  fs::write(path, data_as_json)?;
+pub fn save_data(path: &PathBuf, data_json: &str) -> io::Result<()> {
+  fs::write(path, data_json)?;
   Ok(())
 }
 
