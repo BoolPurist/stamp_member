@@ -2,11 +2,13 @@ use std::fmt::Display;
 
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+#[cfg(test)]
+#[path = "tests/time_stamp_tests.rs"]
+mod time_stamp_tests;
 
 use crate::format_utils;
 
 use super::TimeEntity;
-
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct TimeStamp {
   title: String,
@@ -14,6 +16,9 @@ pub struct TimeStamp {
   ended: Option<DateTime<Utc>>,
   is_paused: bool,
   last_paused: Option<DateTime<Utc>>,
+  #[cfg(test)]
+  #[serde(skip)]
+  current_fake_now_moment: DateTime<Utc>,
 }
 
 impl TimeStamp {
@@ -24,6 +29,8 @@ impl TimeStamp {
 
   pub fn with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
     TimeStamp {
+      #[cfg(test)]
+      current_fake_now_moment: started.clone(),
       title: title.trim().to_string(),
       started,
       ended: None,
@@ -125,6 +132,28 @@ impl TimeStamp {
       digits.to_string()
     }
   }
+  #[allow(dead_code)]
+  /// TODO: remove dead_code if used in production
+  fn finish(&mut self) -> Result<&DateTime<Utc>, &DateTime<Utc>> {
+    self.is_paused = false;
+    match self.ended {
+      Some(ref ended_time) => Err(ended_time),
+      None => {
+        self.ended = Some(self.get_now());
+        Ok(self.ended.as_ref().unwrap())
+      }
+    }
+  }
+
+  #[cfg(not(test))]
+  fn get_now(&self) -> DateTime<Utc> {
+    Utc::now()
+  }
+
+  #[cfg(test)]
+  fn get_now(&self) -> DateTime<Utc> {
+    self.current_fake_now_moment
+  }
 }
 
 impl TimeEntity for TimeStamp {
@@ -132,59 +161,9 @@ impl TimeEntity for TimeStamp {
     &self.title
   }
 }
-
 #[cfg(test)]
-mod test {
-  use super::*;
-
-  #[test]
-  fn should_convert_to_str_vec() {
-    let title = "To vec";
-    let started = Utc.ymd(2014, 8, 24).and_hms(18, 8, 24);
-    let actual_data = TimeStamp::with_started(title, started);
-
-    let actual_vec = actual_data.to_str_vec();
-
-    assert_eq!(
-      actual_vec,
-      vec![
-        title.to_string(),
-        "On 08.24.2014 at 18:08:24".to_string(),
-        TimeStamp::NOT_AVAILABLE.to_string(),
-        "no".to_string(),
-        TimeStamp::NOT_AVAILABLE.to_string(),
-      ]
-    );
-  }
-  #[test]
-  fn should_convert_to_right_format_from_data() {
-    let time = Utc.ymd(2014, 7, 8).and_hms(22, 45, 21);
-
-    let actual_text_format = TimeStamp::time_to_str(time);
-    const EXPECTED: &str = "On 07.08.2014 at 22:45:21";
-    assert_eq!(EXPECTED, actual_text_format);
-  }
-
-  #[test]
-  fn should_return_table_for_time_stamps() {
-    let input = vec![
-      TimeStamp::with_started(
-        "1. Line with more content",
-        Utc.ymd(2018, 2, 1).and_hms(14, 12, 24),
-      ),
-      TimeStamp::with_started(
-        "2. Line with more content",
-        Utc.ymd(2022, 2, 1).and_hms(12, 32, 34),
-      ),
-    ];
-
-    let actual_table = TimeStamp::create_text_table_from_time_stamps(&input);
-    let expected = "Title                      Started at                 Ended at  Is paused  Last time paused  
-1. Line with more content  On 02.01.2018 at 14:12:24  N/A       no         N/A               
-2. Line with more content  On 02.01.2022 at 12:32:34  N/A       no         N/A               
-".to_string();
-    for (expected_side, actual_side) in expected.lines().zip(actual_table.lines()) {
-      assert_eq!(expected_side, actual_side);
-    }
+impl TimeStamp {
+  fn set_new(&mut self, date: &DateTime<Utc>) {
+    self.current_fake_now_moment = date.clone();
   }
 }
