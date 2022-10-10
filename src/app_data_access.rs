@@ -1,8 +1,10 @@
 //! Loads and saves data specific for the this app.
 //! It uses the corresponding data folders of the user or the resource folder
 //! under dev_resources if in dev build
-use crate::data_access::{self, AppDataJsonResult};
-use crate::time_stamp::TimeStamp;
+use crate::{
+  data_access::{self, AppDataJsonResult},
+  time_entities::time_stamp::TimeStamp,
+};
 use chrono::prelude::*;
 
 pub fn read_app_data() -> AppDataJsonResult<Vec<TimeStamp>> {

@@ -5,7 +5,7 @@ pub struct Title {
   name: String,
 }
 #[derive(Args, Debug)]
-pub struct StopWatch {
+pub struct StopWatchCliArgs {
   /// Name of stop watch
   name: String,
   /// Count down until watch is done.
@@ -17,7 +17,7 @@ pub enum AppCommand {
   /// Creates a time stamp which starts from current time.
   Time(Title),
   /// Creates a stop watch which starts from current time and given count down.
-  Watch(StopWatch),
+  Watch(StopWatchCliArgs),
   /// Show time stamp or stop watch of a given title.
   Show(Title),
   /// Deletes time stamp or stop watch with the given title

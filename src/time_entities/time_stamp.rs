@@ -10,7 +10,6 @@ pub struct TimeStamp {
   title: String,
   started: DateTime<Utc>,
   ended: Option<DateTime<Utc>>,
-  finished: Option<DateTime<Utc>>,
   is_paused: bool,
   last_paused: Option<DateTime<Utc>>,
   time_left: Option<usize>,
@@ -29,7 +28,6 @@ impl TimeStamp {
       title: title.trim().to_string(),
       started,
       ended: None,
-      finished: None,
       is_paused: false,
       last_paused: None,
       time_left: None,
@@ -41,7 +39,6 @@ impl TimeStamp {
       "Title",
       "Started at",
       "Ended at",
-      "Finished at",
       "Is paused",
       "Last time paused",
       "Time left",
@@ -99,7 +96,6 @@ impl TimeStamp {
     output.push(TimeStamp::time_to_str(self.started));
 
     TimeStamp::push_text_date_time(&mut output, self.ended);
-    TimeStamp::push_text_date_time(&mut output, self.finished);
 
     output.push(if self.is_paused {
       "yes".to_string()
@@ -168,7 +164,6 @@ mod test {
         title.to_string(),
         "On 08.24.2014 at 18:08:24".to_string(),
         TimeStamp::NOT_AVAILABLE.to_string(),
-        TimeStamp::NOT_AVAILABLE.to_string(),
         "no".to_string(),
         TimeStamp::NOT_AVAILABLE.to_string(),
         TimeStamp::NOT_AVAILABLE.to_string(),
@@ -198,9 +193,9 @@ mod test {
     ];
 
     let actual_table = TimeStamp::create_text_table_from_time_stamps(&input);
-    let expected = "Title                      Started at                 Ended at  Finished at  Is paused  Last time paused  Time left  
-1. Line with more content  On 02.01.2018 at 14:12:24  N/A       N/A          no         N/A               N/A        
-2. Line with more content  On 02.01.2022 at 12:32:34  N/A       N/A          no         N/A               N/A        
+    let expected = "Title                      Started at                 Ended at  Is paused  Last time paused  Time left  
+1. Line with more content  On 02.01.2018 at 14:12:24  N/A       no         N/A               N/A        
+2. Line with more content  On 02.01.2022 at 12:32:34  N/A       no         N/A               N/A        
 ".to_string();
     for (expected_side, actual_side) in expected.lines().zip(actual_table.lines()) {
       assert_eq!(expected_side, actual_side);

@@ -1,5 +1,6 @@
-use crate::time_stamp::TimeStamp;
 use std::{fmt::Display, fs, io, path::PathBuf};
+
+use crate::time_entities::time_stamp::TimeStamp;
 
 pub mod paths;
 #[derive(Debug)]
