@@ -23,10 +23,15 @@ pub struct TimeStamp {
   last_paused: Option<DateTime<Utc>>,
   #[cfg(test)]
   #[serde(skip)]
+  /// Used in tests for functions which work with current moment in time. Example Pause, Finish etc
+  /// This allow manipulation of the current moment in time manually
   current_fake_now_moment: DateTime<Utc>,
 }
 
 impl TimeStamp {
+  /// Used to show to user that a moment in time is not known yet.
+  /// # Example
+  /// If a time stamp is not finished yet then ended time is shown as NOT_AVAILABLE to the user.
   const NOT_AVAILABLE: &'static str = "N/A";
   pub fn new(title: &str) -> TimeStamp {
     TimeStamp::with_started(title, Utc::now())
@@ -57,6 +62,10 @@ impl TimeStamp {
     .collect()
   }
 
+  /// Paused a time stamp. This stops the counting of the passed time on this stamp. Instead it will
+  /// count the paused time until resumed, ending the pause.
+  /// # Errors
+  /// If stamp is already paused or finished.
   pub fn pause(&mut self) -> Result<&DateTime<Utc>, StampOperationError<StopError>> {
     if self.is_paused {
       return Err(StampOperationError::new(
@@ -79,6 +88,12 @@ impl TimeStamp {
     }
   }
 
+  /// Finishes a time stamp. Time stamp can not be paused or resumed after this invocation.
+  /// Finished time stamps will save the moment in time at which they are finished.
+  /// This time moment will not change.
+  /// This moment is always returned even if an error is returned.
+  /// # Errors
+  /// Calling this method a second time. Because a finished time stamp can not be finished again.
   pub fn finish(&mut self) -> Result<&DateTime<Utc>, &DateTime<Utc>> {
     self.is_paused = false;
     match self.ended {

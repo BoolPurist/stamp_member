@@ -150,7 +150,7 @@ fn should_return_error_pausing_on_already_finished() {
 
   let result = to_stop.pause();
   match result {
-    Ok(_) => panic!("Should return an error for pausing an already paused one."),
+    Ok(_) => panic!("Should return an error for pausing an already finished one."),
     Err(paused) => {
       match paused.error_kind {
         StopError::IsFinishedAlready(paused) => assert_eq!(paused, &start_moment),

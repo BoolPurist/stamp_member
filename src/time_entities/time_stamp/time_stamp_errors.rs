@@ -19,6 +19,7 @@ impl<T> StampOperationError<T> {
   }
 }
 
+/// Variants contain the moment in time at which the time stamp was paused most recently.
 pub enum StopError<'a> {
   IsFinishedAlready(&'a DateTime<Utc>),
   IsStoppedAlready(&'a DateTime<Utc>),
