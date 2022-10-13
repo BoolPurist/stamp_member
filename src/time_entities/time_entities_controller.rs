@@ -4,12 +4,20 @@ use serde::{Deserialize, Serialize};
 
 use super::{stop_watch::StopWatch, time_stamp::TimeStamp, TimeEntity};
 
+pub struct DuplicateTitleError;
+
+const DUPLICATE_ADDED_TIME_ERROR_MSG: &str = "Title already exists on another time stamp";
+impl Display for DuplicateTitleError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", DUPLICATE_ADDED_TIME_ERROR_MSG)
+  }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct TimeEntitiesController {
   time_stamps: Vec<TimeStamp>,
   stop_watches: Vec<StopWatch>,
 }
-const DUPLICATE_ADDED_TIME_ERROR_MSG: &str = "Title already exists on another time stamp";
 #[allow(dead_code)]
 impl TimeEntitiesController {
   pub fn empty() -> Self {
@@ -41,10 +49,10 @@ impl TimeEntitiesController {
     }
   }
 
-  pub fn add_new_time_stamp(&mut self, new_title: &str) -> Result<(), &'static str> {
+  pub fn add_new_time_stamp(&mut self, new_title: &str) -> Result<(), DuplicateTitleError> {
     let duplicate_title_on_stamps = Self::has_duplicate_on(&self.time_stamps, new_title);
     if duplicate_title_on_stamps {
-      return Err(DUPLICATE_ADDED_TIME_ERROR_MSG);
+      return Err(DuplicateTitleError);
     }
     let new_time_stamp = TimeStamp::new(new_title);
 
@@ -98,7 +106,10 @@ mod test {
 
     match result {
       Ok(_) => panic!("Duplicate title added did not raise an error"),
-      Err(msg) => assert_eq!(DUPLICATE_ADDED_TIME_ERROR_MSG, msg),
+      Err(duplicate_error) => assert_eq!(
+        DUPLICATE_ADDED_TIME_ERROR_MSG,
+        format!("{}", duplicate_error)
+      ),
     }
   }
 }

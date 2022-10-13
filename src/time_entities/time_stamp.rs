@@ -2,13 +2,18 @@ use std::fmt::Display;
 
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+pub mod time_stamp_errors;
 #[cfg(test)]
-#[path = "tests/time_stamp_tests.rs"]
 mod time_stamp_tests;
 
 use crate::format_utils;
 
+use self::time_stamp_errors::{StampOperationError, StopError};
+
 use super::TimeEntity;
+const ERROR_MSG_ALREADY_PAUSED: &str = "Is already stopped";
+const ERROR_MSG_ALREADY_FINISHED: &str = "Is already finished";
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct TimeStamp {
   title: String,
@@ -50,6 +55,28 @@ impl TimeStamp {
     .iter()
     .map(|to_str| to_str.to_string())
     .collect()
+  }
+
+  pub fn pause(&mut self) -> Result<&DateTime<Utc>, StampOperationError<StopError>> {
+    if self.is_paused {
+      return Err(StampOperationError::new(
+        ERROR_MSG_ALREADY_PAUSED,
+        StopError::IsStoppedAlready(self.last_paused.as_ref().unwrap()),
+      ));
+    }
+
+    match self.ended {
+      Some(ref time_ended) => Err(StampOperationError::new(
+        ERROR_MSG_ALREADY_FINISHED,
+        StopError::IsFinishedAlready(time_ended),
+      )),
+      None => {
+        self.is_paused = true;
+        let new_last_paused = self.get_now().clone();
+        self.last_paused = Some(new_last_paused);
+        Ok(self.last_paused.as_ref().unwrap())
+      }
+    }
   }
 
   pub fn finish(&mut self) -> Result<&DateTime<Utc>, &DateTime<Utc>> {

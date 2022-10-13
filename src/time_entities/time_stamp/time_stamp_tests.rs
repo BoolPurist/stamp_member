@@ -100,3 +100,65 @@ fn should_return_table_for_time_stamps() {
     assert_eq!(expected_side, actual_side);
   }
 }
+
+#[test]
+fn should_pause_time_stamp() {
+  let start_moment = Utc.ymd(2000, 2, 1).and_hms(2, 1, 1);
+  let mut to_stop = TimeStamp::with_started("To stop.", start_moment.clone());
+  let expected_paused_time = &start_moment.add(Duration::hours(2));
+  to_stop.set_new(&expected_paused_time);
+  let result = to_stop.pause();
+
+  match result {
+    Ok(paused) => assert_eq!(
+      expected_paused_time, paused,
+      "Paused time did not match expected paused time."
+    ),
+    Err(_) => panic!("Should not return error on pausing an unpaused/unfinished time stamps"),
+  }
+}
+
+#[test]
+fn should_return_error_pausing_on_already_paused() {
+  let start_moment = Utc.ymd(2000, 2, 1).and_hms(2, 1, 1);
+  let mut to_stop = TimeStamp::with_started("To stop.", start_moment.clone());
+  let after_paused_time = &start_moment.add(Duration::hours(2));
+  _ = to_stop.pause();
+
+  to_stop.set_new(&after_paused_time);
+  let result = to_stop.pause();
+  match result {
+    Ok(_) => panic!("Should return an error for pausing an already paused one."),
+    Err(paused) => {
+      match paused.error_kind {
+        StopError::IsStoppedAlready(paused) => assert_eq!(paused, &start_moment),
+        _ => panic!("Should return {} as error.", stringify!(IsStoppedAlready)),
+      }
+
+      let message = paused.get_error_msg();
+      assert_eq!(ERROR_MSG_ALREADY_PAUSED, message)
+    }
+  }
+}
+
+#[test]
+fn should_return_error_pausing_on_already_finished() {
+  let start_moment = Utc.ymd(2000, 2, 1).and_hms(2, 1, 1);
+  let mut to_stop = TimeStamp::with_started("To stop.", start_moment.clone());
+
+  to_stop.finish().unwrap();
+
+  let result = to_stop.pause();
+  match result {
+    Ok(_) => panic!("Should return an error for pausing an already paused one."),
+    Err(paused) => {
+      match paused.error_kind {
+        StopError::IsFinishedAlready(paused) => assert_eq!(paused, &start_moment),
+        _ => panic!("Should return {} as error.", stringify!(IsStoppedAlready)),
+      }
+
+      let message = paused.get_error_msg();
+      assert_eq!(ERROR_MSG_ALREADY_FINISHED, message)
+    }
+  }
+}
