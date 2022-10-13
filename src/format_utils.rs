@@ -100,6 +100,19 @@ fn calc_max_column_width_for(to_format: &[Vec<String>]) -> Vec<usize> {
 
   max_width
 }
+
+pub fn with_at_least_2_digits(digits: u64) -> String {
+  format!("{:02}", digits)
+}
+
+pub fn with_at_least_3_digits(digits: u64) -> String {
+  format!("{:03}", digits)
+}
+
+pub fn with_at_least_4_digits(digits: u64) -> String {
+  format!("{:04}", digits)
+}
+
 #[cfg(test)]
 mod testing {
   use super::*;

@@ -161,11 +161,11 @@ impl TimeStamp {
   /// The date is shown as date, (month, day, year) and
   /// then time (hour minutes seconds) from left to right.
   fn time_to_str(date: DateTime<Utc>) -> String {
-    let seconds = TimeStamp::create_digit_with_at_least_2_digits(date.second());
-    let minutes = TimeStamp::create_digit_with_at_least_2_digits(date.minute());
-    let hours = TimeStamp::create_digit_with_at_least_2_digits(date.hour());
-    let days = TimeStamp::create_digit_with_at_least_2_digits(date.day());
-    let months = TimeStamp::create_digit_with_at_least_2_digits(date.month());
+    let seconds = format_utils::with_at_least_2_digits(date.second() as u64);
+    let minutes = format_utils::with_at_least_2_digits(date.minute() as u64);
+    let hours = format_utils::with_at_least_2_digits(date.hour() as u64);
+    let days = format_utils::with_at_least_2_digits(date.day() as u64);
+    let months = format_utils::with_at_least_2_digits(date.month() as u64);
 
     format!(
       "On {}.{}.{} at {}:{}:{}",
@@ -176,14 +176,6 @@ impl TimeStamp {
       minutes,
       seconds
     )
-  }
-
-  fn create_digit_with_at_least_2_digits(digits: u32) -> String {
-    if digits < 10 {
-      format!("0{}", digits)
-    } else {
-      digits.to_string()
-    }
   }
 
   #[cfg(not(test))]
