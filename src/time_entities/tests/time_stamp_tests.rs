@@ -4,6 +4,12 @@ use chrono::Duration;
 
 use super::*;
 
+impl TimeStamp {
+  fn set_new(&mut self, date: &DateTime<Utc>) {
+    self.current_fake_now_moment = date.clone();
+  }
+}
+
 #[test]
 fn should_finish_on_2_hours_later() {
   let (mut actual_data, expected_ended) = setup_finish();

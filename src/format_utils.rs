@@ -107,13 +107,20 @@ mod testing {
   #[test]
   fn should_calculate_max_column_width() {
     let input = [
-      vec!["12345".to_string(), "123".to_string(), "1234".to_string()],
-      vec!["12".to_string(), "123456".to_string(), "12".to_string()],
+      to_string_vec(&["12345", "123", "1234"]),
+      to_string_vec(&["12", "123456", "12"]),
     ];
 
     let actual = calc_max_column_width_for(&input);
 
     assert_eq!(actual, vec![5, 6, 4])
+  }
+
+  fn to_string_vec(to_convert: &[&str]) -> Vec<String> {
+    to_convert
+      .iter()
+      .map(|to_turn| to_turn.to_string())
+      .collect()
   }
 
   #[test]

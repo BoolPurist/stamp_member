@@ -52,6 +52,17 @@ impl TimeStamp {
     .collect()
   }
 
+  pub fn finish(&mut self) -> Result<&DateTime<Utc>, &DateTime<Utc>> {
+    self.is_paused = false;
+    match self.ended {
+      Some(ref ended_time) => Err(ended_time),
+      None => {
+        self.ended = Some(self.get_now().clone());
+        Ok(self.ended.as_ref().unwrap())
+      }
+    }
+  }
+
   pub fn create_text_table_from_time_stamps(data: &Vec<TimeStamp>) -> String {
     let mut text_data = TimeStamp::many_to_text(data);
     let headers = TimeStamp::get_text_headers();
@@ -132,18 +143,6 @@ impl TimeStamp {
       digits.to_string()
     }
   }
-  #[allow(dead_code)]
-  /// TODO: remove dead_code if used in production
-  fn finish(&mut self) -> Result<&DateTime<Utc>, &DateTime<Utc>> {
-    self.is_paused = false;
-    match self.ended {
-      Some(ref ended_time) => Err(ended_time),
-      None => {
-        self.ended = Some(self.get_now());
-        Ok(self.ended.as_ref().unwrap())
-      }
-    }
-  }
 
   #[cfg(not(test))]
   fn get_now(&self) -> DateTime<Utc> {
@@ -151,19 +150,13 @@ impl TimeStamp {
   }
 
   #[cfg(test)]
-  fn get_now(&self) -> DateTime<Utc> {
-    self.current_fake_now_moment
+  fn get_now(&self) -> &DateTime<Utc> {
+    &self.current_fake_now_moment
   }
 }
 
 impl TimeEntity for TimeStamp {
   fn get_title(&self) -> &str {
     &self.title
-  }
-}
-#[cfg(test)]
-impl TimeStamp {
-  fn set_new(&mut self, date: &DateTime<Utc>) {
-    self.current_fake_now_moment = date.clone();
   }
 }

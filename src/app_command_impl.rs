@@ -24,9 +24,14 @@ pub fn add_time_stamp_by_title(new_title: &str) -> Result<(), AppDataOperationEr
       app_data_access::save_app_data(&json)?;
       Ok(())
     }
-    Err(ref message) => Err(AppDataOperationError::DuplicateTitle(message)),
+    Err(message) => Err(AppDataOperationError::DuplicateTitle(message)),
   }
 }
+
+// pub fn pause_by_title() -> Result<(), AppDataOperationError> {
+// let data = app_data_access::read_app_data()?;
+// let mut entities = TimeEntitiesController::from_json(&data)?;
+// }
 
 impl From<io::Error> for AppDataOperationError {
   fn from(error: io::Error) -> Self {

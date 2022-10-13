@@ -8,9 +8,12 @@ fn main() {
   normal_app_run();
 }
 
+#[cfg(debug_assertions)]
 fn initial_with_fake_dev_data() {
   let fake_data = app_data_access::fake_dev_app_data();
-  let json = fake_data.to_json().unwrap();
+  let json = fake_data
+    .to_json()
+    .expect("Fake data struct can not be serialized to json");
   app_data_access::save_app_data(&json).expect("Saving failed");
 
   println!(
