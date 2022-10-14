@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::ops::{Add, Sub};
 
 use chrono::{DateTime, Duration, Utc};
 
@@ -10,6 +10,37 @@ pub struct DateDifference {
   hours: u64,
   days: u64,
   years: u64,
+}
+
+impl DateDifference {
+  pub fn new(total_secs: u64) -> Self {
+    let mut result: DateDifference = Default::default();
+    result.seconds = total_secs % 60;
+    let mut left_total_secs = total_secs;
+    left_total_secs /= 60;
+    if left_total_secs == 0 {
+      return result;
+    }
+
+    result.minutes = left_total_secs % 60;
+    left_total_secs /= 60;
+    if left_total_secs == 0 {
+      return result;
+    }
+
+    result.hours = left_total_secs % 24;
+    left_total_secs /= 24;
+    if left_total_secs == 0 {
+      return result;
+    }
+
+    result.days = left_total_secs % 365;
+    left_total_secs /= 365;
+
+    result.years = left_total_secs;
+
+    result
+  }
 }
 
 impl ToString for DateDifference {
@@ -24,6 +55,8 @@ impl ToString for DateDifference {
     format!("{years}:{days} {hours}:{minutes}:{seconds}")
   }
 }
+#[allow(dead_code)]
+/// TODO: remove dead code
 fn calc_date_moment_difference(later: &DateTime<Utc>, earlier: &DateTime<Utc>) -> DateDifference {
   debug_assert!(
     earlier <= later,
@@ -37,33 +70,13 @@ fn calc_date_moment_difference(later: &DateTime<Utc>, earlier: &DateTime<Utc>) -
     "Total seconds should be positive because 1. param should be greater than the 2."
   );
 
-  let mut total_secs: u64 = difference.num_seconds() as u64;
+  DateDifference::new(difference.num_seconds() as u64)
+}
 
-  let mut result: DateDifference = Default::default();
-  result.seconds = total_secs % 60;
-  total_secs /= 60;
-  if total_secs == 0 {
-    return result;
-  }
-
-  result.minutes = total_secs % 60;
-  total_secs /= 60;
-  if total_secs == 0 {
-    return result;
-  }
-
-  result.hours = total_secs % 24;
-  total_secs /= 24;
-  if total_secs == 0 {
-    return result;
-  }
-
-  result.days = total_secs % 365;
-  total_secs /= 365;
-
-  result.years = total_secs;
-
-  result
+pub fn duration_with_hms(hours: i64, minutes: i64, secs: i64) -> chrono::Duration {
+  chrono::Duration::hours(hours)
+    .add(Duration::minutes(minutes))
+    .add(Duration::seconds(secs))
 }
 
 #[cfg(test)]

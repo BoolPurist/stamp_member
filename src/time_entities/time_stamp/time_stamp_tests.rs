@@ -2,11 +2,17 @@ use std::ops::Add;
 
 use chrono::Duration;
 
+use crate::chrono_utility;
+
 use super::*;
 
 impl TimeStamp {
   fn set_new(&mut self, date: &DateTime<Utc>) {
     self.current_fake_now_moment = date.clone();
+  }
+
+  fn add_duration(&mut self, to_add: chrono::Duration) {
+    self.current_fake_now_moment += to_add;
   }
 }
 
@@ -161,4 +167,75 @@ fn should_return_error_pausing_on_already_finished() {
       assert_eq!(ERROR_MSG_ALREADY_FINISHED, message)
     }
   }
+}
+
+#[test]
+fn should_return_difference_between_started_and_now() {
+  let started = Utc.ymd(2000, 1, 1).and_hms(0, 0, 0);
+  let mut time_stamp = TimeStamp::with_started("1", started.clone());
+  let now_total_secs = chrono_utility::duration_with_hms(4, 2, 20);
+  let now_after_init = started.add(now_total_secs.clone());
+
+  time_stamp.set_new(&now_after_init);
+
+  let actual = time_stamp.get_unpaused_passed_time();
+
+  let expected = DateDifference::new(now_total_secs.num_seconds() as u64);
+  assert_eq!(expected, actual);
+}
+
+#[test]
+fn should_return_difference_between_started_and_paused() {
+  let duration_up_to_pause = chrono_utility::duration_with_hms(4, 2, 20);
+  let time_stamp = setup_actual_for_time_difference_with_pause(
+    Utc.ymd(2000, 1, 1).and_hms(0, 0, 0),
+    duration_up_to_pause.clone(),
+    chrono_utility::duration_with_hms(2, 2, 2),
+  );
+  let actual = time_stamp.get_unpaused_passed_time();
+
+  let expected = DateDifference::new(duration_up_to_pause.num_seconds() as u64);
+  assert_eq!(
+    expected, actual,
+    "Should only return time difference between started and paused moment"
+  );
+}
+
+#[test]
+fn should_return_difference_between_started_paused_unpaused() {
+  let duration_before_pause = chrono_utility::duration_with_hms(1, 20, 33);
+  let mut time_stamp = setup_actual_for_time_difference_with_pause(
+    Utc.ymd(2000, 2, 2).and_hms(1, 1, 1),
+    duration_before_pause.clone(),
+    chrono_utility::duration_with_hms(8, 4, 0),
+  );
+
+  time_stamp.resume().unwrap();
+  let duration_after_resume = chrono_utility::duration_with_hms(3, 3, 3);
+  time_stamp.add_duration(duration_after_resume.clone());
+  let actual = time_stamp.get_unpaused_passed_time();
+
+  let expected_duration = duration_before_pause.add(duration_after_resume);
+  let expected = DateDifference::new(expected_duration.num_seconds() as u64);
+
+  assert_eq!(
+    expected, actual,
+    "Should only return time difference between started, paused and resumed."
+  );
+}
+
+fn setup_actual_for_time_difference_with_pause(
+  started: DateTime<Utc>,
+  duration_up_to_pause: Duration,
+  duration_after_paused: Duration,
+) -> TimeStamp {
+  let mut time_stamp = TimeStamp::with_started("1", started.clone());
+
+  time_stamp.set_new(&started.add(duration_up_to_pause));
+  time_stamp.pause().unwrap();
+
+  // See if passing time does not alter returned time difference after pause.
+  time_stamp.set_new(&time_stamp.get_now().add(duration_after_paused));
+
+  time_stamp
 }

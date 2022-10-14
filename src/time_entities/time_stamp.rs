@@ -6,9 +6,9 @@ pub mod time_stamp_errors;
 #[cfg(test)]
 mod time_stamp_tests;
 
-use crate::format_utils;
+use crate::{chrono_utility::DateDifference, format_utils};
 
-use self::time_stamp_errors::{StampOperationError, StopError};
+use self::time_stamp_errors::{ResumeError, StampOperationError, StopError};
 
 use super::TimeEntity;
 const ERROR_MSG_ALREADY_PAUSED: &str = "Is already stopped";
@@ -21,6 +21,7 @@ pub struct TimeStamp {
   ended: Option<DateTime<Utc>>,
   is_paused: bool,
   last_paused: Option<DateTime<Utc>>,
+  passed_paused_time: u64,
   #[cfg(test)]
   #[serde(skip)]
   /// Used in tests for functions which work with current moment in time. Example Pause, Finish etc
@@ -46,6 +47,7 @@ impl TimeStamp {
       ended: None,
       is_paused: false,
       last_paused: None,
+      passed_paused_time: 0u64,
     }
   }
 
@@ -88,6 +90,16 @@ impl TimeStamp {
     }
   }
 
+  pub fn resume(&mut self) -> Result<DateTime<Utc>, StampOperationError<ResumeError>> {
+    self.is_paused = false;
+
+    let now = self.get_now();
+    let difference_bet_paused_now = now - self.last_paused.as_ref().unwrap().clone();
+    self.passed_paused_time += difference_bet_paused_now.num_seconds() as u64;
+
+    Ok(now)
+  }
+
   /// Finishes a time stamp. Time stamp can not be paused or resumed after this invocation.
   /// Finished time stamps will save the moment in time at which they are finished.
   /// This time moment will not change.
@@ -103,6 +115,19 @@ impl TimeStamp {
         Ok(self.ended.as_ref().unwrap())
       }
     }
+  }
+  #[allow(dead_code)]
+  /// TODO: remove dead_code
+  fn get_unpaused_passed_time(&self) -> DateDifference {
+    let difference = if self.is_paused {
+      self.last_paused.unwrap() - self.started
+    } else {
+      self.get_now() - self.started
+    };
+
+    let difference_minus_paused_time = (difference.num_seconds() as u64) - self.passed_paused_time;
+
+    DateDifference::new(difference_minus_paused_time)
   }
 
   pub fn create_text_table_from_time_stamps(data: &Vec<TimeStamp>) -> String {
@@ -184,8 +209,8 @@ impl TimeStamp {
   }
 
   #[cfg(test)]
-  fn get_now(&self) -> &DateTime<Utc> {
-    &self.current_fake_now_moment
+  fn get_now(&self) -> DateTime<Utc> {
+    self.current_fake_now_moment
   }
 }
 
