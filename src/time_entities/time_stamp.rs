@@ -41,7 +41,7 @@ impl TimeStamp {
   pub fn with_started(title: &str, started: DateTime<Utc>) -> TimeStamp {
     TimeStamp {
       #[cfg(test)]
-      current_fake_now_moment: started.clone(),
+      current_fake_now_moment: started,
       title: title.trim().to_string(),
       started,
       ended: None,
@@ -83,7 +83,7 @@ impl TimeStamp {
       )),
       None => {
         self.is_paused = true;
-        let new_last_paused = self.get_now().clone();
+        let new_last_paused = self.get_now();
         self.last_paused = Some(new_last_paused);
         Ok(self.last_paused.as_ref().unwrap())
       }
@@ -94,7 +94,8 @@ impl TimeStamp {
     self.is_paused = false;
 
     let now = self.get_now();
-    let difference_bet_paused_now = now - self.last_paused.as_ref().unwrap().clone();
+    let difference_bet_paused_now =
+      now - self.last_paused.expect("moment of paused should be there");
     self.passed_paused_time += difference_bet_paused_now.num_seconds() as u64;
 
     Ok(now)
@@ -111,7 +112,7 @@ impl TimeStamp {
     match self.ended {
       Some(ref ended_time) => Err(ended_time),
       None => {
-        self.ended = Some(self.get_now().clone());
+        self.ended = Some(self.get_now());
         Ok(self.ended.as_ref().unwrap())
       }
     }

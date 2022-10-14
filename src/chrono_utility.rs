@@ -63,7 +63,7 @@ fn calc_date_moment_difference(later: &DateTime<Utc>, earlier: &DateTime<Utc>) -
     "1. param should be greater, later in time, than the 2. one."
   );
 
-  let difference: Duration = later.clone().sub(earlier.clone());
+  let difference: Duration = later.sub(earlier.clone());
 
   debug_assert!(
     difference.num_seconds() >= 0,

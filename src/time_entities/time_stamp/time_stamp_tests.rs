@@ -7,8 +7,8 @@ use crate::chrono_utility;
 use super::*;
 
 impl TimeStamp {
-  fn set_new(&mut self, date: &DateTime<Utc>) {
-    self.current_fake_now_moment = date.clone();
+  fn set_new(&mut self, date: DateTime<Utc>) {
+    self.current_fake_now_moment = date;
   }
 
   fn add_duration(&mut self, to_add: chrono::Duration) {
@@ -32,7 +32,7 @@ fn should_return_error_on_already_finished() {
   let (mut actual_data, expected_ended) = setup_finish();
   actual_data.finish().unwrap();
   // Change current time and see if ended time remains the same
-  actual_data.set_new(&expected_ended.add(Duration::hours(2)));
+  actual_data.set_new(expected_ended.add(Duration::hours(2)));
 
   // Act
   match actual_data.finish() {
@@ -49,7 +49,7 @@ fn setup_finish() -> (TimeStamp, DateTime<Utc>) {
   let started = Utc.ymd(2012, 8, 8).and_hms(2, 2, 2);
   let mut actual_data = TimeStamp::with_started("2 Hours later ...", started.clone());
   let expected_ended = started.add(Duration::hours(2));
-  actual_data.set_new(&expected_ended);
+  actual_data.set_new(expected_ended);
 
   (actual_data, expected_ended)
 }
@@ -111,13 +111,13 @@ fn should_return_table_for_time_stamps() {
 fn should_pause_time_stamp() {
   let start_moment = Utc.ymd(2000, 2, 1).and_hms(2, 1, 1);
   let mut to_stop = TimeStamp::with_started("To stop.", start_moment.clone());
-  let expected_paused_time = &start_moment.add(Duration::hours(2));
-  to_stop.set_new(&expected_paused_time);
+  let expected_paused_time = start_moment.add(Duration::hours(2));
+  to_stop.set_new(expected_paused_time);
   let result = to_stop.pause();
 
   match result {
     Ok(paused) => assert_eq!(
-      expected_paused_time, paused,
+      &expected_paused_time, paused,
       "Paused time did not match expected paused time."
     ),
     Err(_) => panic!("Should not return error on pausing an unpaused/unfinished time stamps"),
@@ -128,10 +128,10 @@ fn should_pause_time_stamp() {
 fn should_return_error_pausing_on_already_paused() {
   let start_moment = Utc.ymd(2000, 2, 1).and_hms(2, 1, 1);
   let mut to_stop = TimeStamp::with_started("To stop.", start_moment.clone());
-  let after_paused_time = &start_moment.add(Duration::hours(2));
+  let after_paused_time = start_moment.add(Duration::hours(2));
   _ = to_stop.pause();
 
-  to_stop.set_new(&after_paused_time);
+  to_stop.set_new(after_paused_time);
   let result = to_stop.pause();
   match result {
     Ok(_) => panic!("Should return an error for pausing an already paused one."),
@@ -172,11 +172,11 @@ fn should_return_error_pausing_on_already_finished() {
 #[test]
 fn should_return_difference_between_started_and_now() {
   let started = Utc.ymd(2000, 1, 1).and_hms(0, 0, 0);
-  let mut time_stamp = TimeStamp::with_started("1", started.clone());
+  let mut time_stamp = TimeStamp::with_started("1", started);
   let now_total_secs = chrono_utility::duration_with_hms(4, 2, 20);
   let now_after_init = started.add(now_total_secs.clone());
 
-  time_stamp.set_new(&now_after_init);
+  time_stamp.set_new(now_after_init);
 
   let actual = time_stamp.get_unpaused_passed_time();
 
@@ -189,7 +189,7 @@ fn should_return_difference_between_started_and_paused() {
   let duration_up_to_pause = chrono_utility::duration_with_hms(4, 2, 20);
   let time_stamp = setup_actual_for_time_difference_with_pause(
     Utc.ymd(2000, 1, 1).and_hms(0, 0, 0),
-    duration_up_to_pause.clone(),
+    duration_up_to_pause,
     chrono_utility::duration_with_hms(2, 2, 2),
   );
   let actual = time_stamp.get_unpaused_passed_time();
@@ -206,13 +206,13 @@ fn should_return_difference_between_started_paused_unpaused() {
   let duration_before_pause = chrono_utility::duration_with_hms(1, 20, 33);
   let mut time_stamp = setup_actual_for_time_difference_with_pause(
     Utc.ymd(2000, 2, 2).and_hms(1, 1, 1),
-    duration_before_pause.clone(),
+    duration_before_pause,
     chrono_utility::duration_with_hms(8, 4, 0),
   );
 
   time_stamp.resume().unwrap();
   let duration_after_resume = chrono_utility::duration_with_hms(3, 3, 3);
-  time_stamp.add_duration(duration_after_resume.clone());
+  time_stamp.add_duration(duration_after_resume);
   let actual = time_stamp.get_unpaused_passed_time();
 
   let expected_duration = duration_before_pause.add(duration_after_resume);
@@ -229,13 +229,13 @@ fn setup_actual_for_time_difference_with_pause(
   duration_up_to_pause: Duration,
   duration_after_paused: Duration,
 ) -> TimeStamp {
-  let mut time_stamp = TimeStamp::with_started("1", started.clone());
+  let mut time_stamp = TimeStamp::with_started("1", started);
 
-  time_stamp.set_new(&started.add(duration_up_to_pause));
+  time_stamp.set_new(started.add(duration_up_to_pause));
   time_stamp.pause().unwrap();
 
   // See if passing time does not alter returned time difference after pause.
-  time_stamp.set_new(&time_stamp.get_now().add(duration_after_paused));
+  time_stamp.set_new(time_stamp.get_now().add(duration_after_paused));
 
   time_stamp
 }
