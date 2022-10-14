@@ -24,12 +24,18 @@ impl ToString for DateDifference {
     format!("{years}:{days} {hours}:{minutes}:{seconds}")
   }
 }
-fn calc_date_moment_difference(greater: &DateTime<Utc>, smaller: &DateTime<Utc>) -> DateDifference {
-  debug_assert!(smaller <= greater);
+fn calc_date_moment_difference(later: &DateTime<Utc>, earlier: &DateTime<Utc>) -> DateDifference {
+  debug_assert!(
+    earlier <= later,
+    "1. param should be greater, later in time, than the 2. one."
+  );
 
-  let difference: Duration = greater.clone().sub(smaller.clone());
+  let difference: Duration = later.clone().sub(earlier.clone());
 
-  debug_assert!(difference.num_seconds() >= 0);
+  debug_assert!(
+    difference.num_seconds() >= 0,
+    "Total seconds should be positive because 1. param should be greater than the 2."
+  );
 
   let mut total_secs: u64 = difference.num_seconds() as u64;
 
@@ -59,6 +65,7 @@ fn calc_date_moment_difference(greater: &DateTime<Utc>, smaller: &DateTime<Utc>)
 
   result
 }
+
 #[cfg(test)]
 mod tests {
   use chrono::TimeZone;

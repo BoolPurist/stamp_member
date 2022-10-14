@@ -100,15 +100,44 @@ fn calc_max_column_width_for(to_format: &[Vec<String>]) -> Vec<usize> {
 
   max_width
 }
-
+/// Returns text which is at least 2 digits wide. It is padded with leading zeros if needed.
+/// # Example
+/// ```
+/// use stamp_member::format_utils;
+/// let eight = 8;
+///
+/// let with_2_digits = format_utils::with_at_least_2_digits(eight);
+///
+/// assert_eq!("08", with_2_digits);
+/// ```
 pub fn with_at_least_2_digits(digits: u64) -> String {
   format!("{:02}", digits)
 }
 
+/// Returns text which is at least 3 digits wide. It is padded with leading zeros if needed.
+/// # Example
+/// ```
+/// use stamp_member::format_utils;
+/// let eight = 28;
+///
+/// let with_3_digits = format_utils::with_at_least_3_digits(eight);
+///
+/// assert_eq!("028", with_3_digits);
+/// ```
 pub fn with_at_least_3_digits(digits: u64) -> String {
   format!("{:03}", digits)
 }
 
+/// Returns text which is at least 4 digits wide. It is padded with leading zeros if needed.
+/// # Example
+/// ```
+/// use stamp_member::format_utils;
+/// let eight = 2;
+///
+/// let with_4_digits = format_utils::with_at_least_4_digits(eight);
+///
+/// assert_eq!("0002", with_4_digits );
+/// ```
 pub fn with_at_least_4_digits(digits: u64) -> String {
   format!("{:04}", digits)
 }
