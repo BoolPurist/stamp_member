@@ -19,28 +19,31 @@ macro_rules! return_if_zero_with {
     }
   };
 }
+
 impl DateDifference {
   pub fn new(total_secs: u64) -> Self {
     let mut result: DateDifference = Default::default();
-    result.seconds = total_secs % 60;
     let mut left_total_secs = total_secs;
-    left_total_secs /= 60;
+
+    extract_advance_time_unit(&mut result.seconds, &mut left_total_secs, 60);
     return_if_zero_with!(left_total_secs, result);
 
-    result.minutes = left_total_secs % 60;
-    left_total_secs /= 60;
+    extract_advance_time_unit(&mut result.minutes, &mut left_total_secs, 60);
     return_if_zero_with!(left_total_secs, result);
 
-    result.hours = left_total_secs % 24;
-    left_total_secs /= 24;
+    extract_advance_time_unit(&mut result.hours, &mut left_total_secs, 24);
     return_if_zero_with!(left_total_secs, result);
 
-    result.days = left_total_secs % 365;
-    left_total_secs /= 365;
+    extract_advance_time_unit(&mut result.days, &mut left_total_secs, 365);
 
     result.years = left_total_secs;
 
-    result
+    return result;
+
+    fn extract_advance_time_unit(dest: &mut u64, t_secs: &mut u64, unit: u64) {
+      *dest = *t_secs % unit;
+      *t_secs /= unit;
+    }
   }
 }
 
