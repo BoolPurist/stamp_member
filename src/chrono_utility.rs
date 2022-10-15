@@ -2,7 +2,7 @@ use std::ops::{Add, Sub};
 
 use chrono::{DateTime, Duration, Utc};
 
-use crate::format_utils;
+use crate::{format_utils, return_if_with};
 #[derive(Default, PartialEq, Debug)]
 pub struct DateDifference {
   seconds: u64,
@@ -12,27 +12,19 @@ pub struct DateDifference {
   years: u64,
 }
 
-macro_rules! return_if_zero_with {
-  ($cond:ident, $retval:ident) => {
-    if $cond == 0 {
-      return $retval;
-    }
-  };
-}
-
 impl DateDifference {
   pub fn new(total_secs: u64) -> Self {
     let mut result: DateDifference = Default::default();
     let mut left_total_secs = total_secs;
 
     extract_advance_time_unit(&mut result.seconds, &mut left_total_secs, 60);
-    return_if_zero_with!(left_total_secs, result);
+    return_if_with!(left_total_secs, 0, result);
 
     extract_advance_time_unit(&mut result.minutes, &mut left_total_secs, 60);
-    return_if_zero_with!(left_total_secs, result);
+    return_if_with!(left_total_secs, 0, result);
 
     extract_advance_time_unit(&mut result.hours, &mut left_total_secs, 24);
-    return_if_zero_with!(left_total_secs, result);
+    return_if_with!(left_total_secs, 0, result);
 
     extract_advance_time_unit(&mut result.days, &mut left_total_secs, 365);
 
