@@ -12,27 +12,28 @@ pub struct DateDifference {
   years: u64,
 }
 
+macro_rules! return_if_zero_with {
+  ($cond:ident, $retval:ident) => {
+    if $cond == 0 {
+      return $retval;
+    }
+  };
+}
 impl DateDifference {
   pub fn new(total_secs: u64) -> Self {
     let mut result: DateDifference = Default::default();
     result.seconds = total_secs % 60;
     let mut left_total_secs = total_secs;
     left_total_secs /= 60;
-    if left_total_secs == 0 {
-      return result;
-    }
+    return_if_zero_with!(left_total_secs, result);
 
     result.minutes = left_total_secs % 60;
     left_total_secs /= 60;
-    if left_total_secs == 0 {
-      return result;
-    }
+    return_if_zero_with!(left_total_secs, result);
 
     result.hours = left_total_secs % 24;
     left_total_secs /= 24;
-    if left_total_secs == 0 {
-      return result;
-    }
+    return_if_zero_with!(left_total_secs, result);
 
     result.days = left_total_secs % 365;
     left_total_secs /= 365;
