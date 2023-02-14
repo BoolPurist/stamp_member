@@ -1,5 +1,9 @@
 # stamp_member
 
+## Project status
+
+This project is not maintained anymore !
+
 ## Description
 
 A cli tool to create, stop, resume and delete time stamp and stop watches.
